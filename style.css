@@ -6,14 +6,10 @@
 }
 
 * {
-    font-family: 'Destoria', sans-serif !important;
-}
-
-* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Destoria', sans-serif ;
 }
 
 :root {
