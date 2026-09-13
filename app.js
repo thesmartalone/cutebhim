@@ -35,62 +35,72 @@ function getUserId() {
 // Like toggle — Firestore mein save hoga
 window.toggleLike = async function(btn) {
   const postId = btn.dataset.postId;
-  if (!postId) return;
+  if (!postId || btn.disabled) return;
 
   const userId = getUserId();
   const likeRef = doc(db, "likes", postId + "_" + userId);
   const postRef = doc(db, "likes_count", postId);
-
+  const countEl = btn.querySelector(".like-count");
   const alreadyLiked = btn.dataset.liked === "true";
+  const oldCount = Math.max(0, parseInt(countEl?.textContent, 10) || 0);
+
+  btn.disabled = true;
+  btn.classList.add("is-loading");
 
   // UI turant update (optimistic)
-  btn.disabled = true;
-  const countEl = btn.querySelector(".like-count");
-  let current = parseInt(countEl.textContent) || 0;
+  const newLiked = !alreadyLiked;
+  btn.dataset.liked = String(newLiked);
+  btn.classList.toggle("liked", newLiked);
+  if (countEl) countEl.textContent = String(Math.max(0, oldCount + (newLiked ? 1 : -1)));
 
-  if (alreadyLiked) {
-    btn.dataset.liked = "false";
-    btn.classList.remove("liked");
-    countEl.textContent = Math.max(0, current - 1);
-    // Firestore se unlike
-    await setDoc(likeRef, { liked: false, userId, postId });
-    await updateDoc(postRef, { count: increment(-1) }).catch(() =>
-      setDoc(postRef, { count: 0 })
-    );
-  } else {
-    btn.dataset.liked = "true";
-    btn.classList.add("liked");
-    countEl.textContent = current + 1;
-    btn.style.transform = "scale(1.2)";
-    setTimeout(() => btn.style.transform = "", 200);
-    // Firestore mein like save karo
-    await setDoc(likeRef, { liked: true, userId, postId });
-    await updateDoc(postRef, { count: increment(1) }).catch(() =>
-      setDoc(postRef, { count: 1 })
-    );
+  try {
+    await setDoc(likeRef, { liked: newLiked, userId, postId }, { merge: true });
+
+    // setDoc + merge + increment works even when the count document does not exist.
+    await setDoc(postRef, { count: increment(newLiked ? 1 : -1) }, { merge: true });
+
+    if (newLiked) {
+      btn.classList.add("like-pop");
+      setTimeout(() => btn.classList.remove("like-pop"), 220);
+    }
+  } catch (error) {
+    console.error("Like update failed:", error);
+
+    // Roll back UI if Firebase rejects the write.
+    btn.dataset.liked = String(alreadyLiked);
+    btn.classList.toggle("liked", alreadyLiked);
+    if (countEl) countEl.textContent = String(oldCount);
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove("is-loading");
   }
-
-  btn.disabled = false;
 };
 
 // Kisi bhi post ke liye like button setup karo
 async function setupLikeBtn(btn, postId) {
+  if (!btn || !postId) return;
   btn.dataset.postId = postId;
-  const userId = getUserId();
+  btn.dataset.liked = btn.dataset.liked || "false";
 
-  // User ne pehle like kiya tha?
+  const userId = getUserId();
   const likeRef = doc(db, "likes", postId + "_" + userId);
-  const likeSnap = await getDoc(likeRef);
-  if (likeSnap.exists() && likeSnap.data().liked) {
-    btn.dataset.liked = "true";
-    btn.classList.add("liked");
+  const postRef = doc(db, "likes_count", postId);
+  const countEl = btn.querySelector(".like-count");
+
+  try {
+    const likeSnap = await getDoc(likeRef);
+    const liked = likeSnap.exists() && likeSnap.data().liked === true;
+    btn.dataset.liked = String(liked);
+    btn.classList.toggle("liked", liked);
+  } catch (error) {
+    console.warn("Could not read like state:", error);
   }
 
-  // Real-time like count sunna
-  const postRef = doc(db, "likes_count", postId);
   onSnapshot(postRef, snap => {
-    const count = snap.exists() ? (snap.data().count || 0) : 0;
-    btn.querySelector(".like-count").textContent = Math.max(0, count);
+    const count = snap.exists() ? Number(snap.data().count || 0) : 0;
+    if (countEl) countEl.textContent = String(Math.max(0, count));
+  }, error => {
+    console.warn("Could not read like count:", error);
   });
 }
 
@@ -156,21 +166,3 @@ onSnapshot(postsQuery, snapshot => {
   console.error("Firebase posts error:", error);
 });
 
-// CSS auto-refresh
-setInterval(() => {
-  document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-    if (!link.href.includes("cdnjs") && !link.href.includes("fonts")) {
-      link.href = link.href.split("?")[0] + "?t=" + Date.now();
-    }
-  });
-}, 30000);
-
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) {
-    document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-      if (!link.href.includes("cdnjs") && !link.href.includes("fonts")) {
-        link.href = link.href.split("?")[0] + "?t=" + Date.now();
-      }
-    });
-  }
-});
