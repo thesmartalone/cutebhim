@@ -121,6 +121,7 @@ nav a:hover::before { width: 100%; }
 
 .hero-banner {
     position: relative;
+    isolation: isolate;
     width: 768px;
     height: 1376px;
     max-width: 100%;
@@ -243,6 +244,7 @@ nav a:hover::before { width: 100%; }
 
 .gallery-card {
     position: relative;
+    isolation: isolate;
     border-radius: 32px;
     overflow: hidden;
     height: 400px;
@@ -420,57 +422,75 @@ nav a:hover::before { width: 100%; }
 
 /* ── Like Button ── */
 .like-btn {
-    background: rgba(255, 255, 255, 0.15);
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    z-index: 20;
+    appearance: none;
+    -webkit-appearance: none;
+    background: rgba(15, 23, 42, 0.58);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 60px;
-    padding: 7px 14px;
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    min-height: 42px;
+    padding: 8px 15px;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
-    color: #ffffff;
-    font-size: 0.82rem;
-    font-weight: 400;
-    letter-spacing: 0.5px;
-    transition: all 0.2s ease;
-    pointer-events: all;
-    flex-shrink: 0;
+    justify-content: center;
+    gap: 7px;
+    color: #fff;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.2px;
+    transition: transform .2s ease, background .2s ease, border-color .2s ease, opacity .2s ease;
+    pointer-events: auto;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 .like-btn i {
-    font-size: 0.95rem;
-    transition: all 0.2s ease;
+    font-family: 'Font Awesome 6 Free' !important;
+    font-weight: 900 !important;
+    font-size: 1rem;
+    color: #fff;
+    display: inline-block;
 }
 .like-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 50, 100, 0.5);
+    background: rgba(15, 23, 42, 0.78);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-1px);
 }
+.like-btn:active { transform: scale(.95); }
+.like-btn:disabled { cursor: wait; opacity: .8; }
 .like-btn.liked {
-    background: rgba(224, 36, 94, 0.3);
-    border-color: rgba(224, 36, 94, 0.6);
-    color: #ffb3cc;
+    background: rgba(224, 36, 94, 0.72);
+    border-color: rgba(255, 180, 205, 0.9);
 }
-.like-btn.liked i {
-    color: #ff4d7d;
+.like-btn.liked i { color: #fff; }
+.like-btn.is-loading { opacity: .75; }
+.like-btn.like-pop i { animation: likePop .22s ease; }
+@keyframes likePop {
+    50% { transform: scale(1.35); }
 }
 
 /* Hero banner like button — bottom right */
 .hero-like {
-    position: absolute;
-    bottom: 50px;
     right: 50px;
+    bottom: 50px;
 }
 
 /* Gallery card like button — bottom right inside photo */
 .card-like {
-    position: absolute;
-    bottom: 20px;
     right: 20px;
-    z-index: 5;
+    bottom: 20px;
 }
 
 @media (max-width: 820px) {
-    .like-btn { padding: 6px 12px; font-size: 0.78rem; }
+    .like-btn { min-height: 40px; padding: 7px 13px; font-size: 0.78rem; right: 14px; bottom: 14px; }
     .hero-like { bottom: 24px; right: 24px; }
 }
 
