@@ -15,26 +15,115 @@
 :root {
     --primary: #0ea5e9;
     --secondary: #38bdf8;
-    --bg: #f0f9ff;
+    --bg: #eef6fb;
     --text: #0c2340;
     --glass: rgba(255, 255, 255, 0.65);
     --glass-border: rgba(255, 255, 255, 0.4);
 }
 
 body {
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.7;
-    overflow-x: hidden;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255,255,255,0.95) 0 8%, transparent 32%),
+    radial-gradient(circle at 88% 12%, rgba(14,165,233,0.28) 0 0%, transparent 34%),
+    radial-gradient(circle at 18% 85%, rgba(56,189,248,0.20) 0%, transparent 30%),
+    radial-gradient(circle at 82% 78%, rgba(99,102,241,0.14) 0%, transparent 28%),
+    linear-gradient(135deg, #f8fcff 0%, #dff3ff 38%, #eef5ff 66%, #e7f7ff 100%);
+  background-attachment: fixed;
+  background-size: 120% 120%;
+  color: var(--text);
+  line-height: 1.7;
+  overflow-x: hidden;
+  min-height: 100vh;
+  position: relative;
 }
 
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.42;
+    background-image:
+        linear-gradient(rgba(14,165,233,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(14,165,233,0.035) 1px, transparent 1px);
+    background-size: 54px 54px;
+    mask-image: radial-gradient(circle at center, black 0%, transparent 88%);
+    -webkit-mask-image: radial-gradient(circle at center, black 0%, transparent 88%);
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: linear-gradient(115deg, rgba(255,255,255,0.38), transparent 28%, transparent 68%, rgba(255,255,255,0.22));
+}
+
+
 html { scroll-behavior: smooth; }
+
+
+/* PREMIUM BACKGROUND LAYERS */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(rgba(14,165,233,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14,165,233,0.035) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, black, transparent 88%);
+}
+
+.premium-aura,
+.premium-aura-2 {
+  position: fixed;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(55px);
+  opacity: 0.45;
+  animation: premiumFloat 12s ease-in-out infinite alternate;
+}
+
+.premium-aura {
+  top: 12%;
+  left: -120px;
+  background: radial-gradient(circle, rgba(56,189,248,0.42), transparent 68%);
+}
+
+.premium-aura-2 {
+  right: -120px;
+  bottom: 8%;
+  background: radial-gradient(circle, rgba(99,102,241,0.24), transparent 68%);
+  animation-delay: -5s;
+}
+
+@keyframes premiumFloat {
+  from { transform: translate3d(0,0,0) scale(1); }
+  to { transform: translate3d(35px,-25px,0) scale(1.08); }
+}
+
+/* Keep page content above the decorative background */
+.container,
+header,
+main,
+footer {
+  position: relative;
+  z-index: 1;
+}
 
 .glow-orb {
     position: fixed;
     width: 700px;
     height: 700px;
-    background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.16) 0%, rgba(56,189,248,0.06) 38%, transparent 72%);
     top: -300px;
     right: -200px;
     pointer-events: none;
@@ -45,7 +134,7 @@ html { scroll-behavior: smooth; }
     position: fixed;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.14) 0%, rgba(125,211,252,0.05) 42%, transparent 72%);
     bottom: -200px;
     left: -150px;
     pointer-events: none;
@@ -499,3 +588,4 @@ nav a:hover::before { width: 100%; }
 ::-webkit-scrollbar-track { background: #f0f9ff; }
 ::-webkit-scrollbar-thumb { background: #d5ccc4; border-radius: 20px; }
 ::-webkit-scrollbar-thumb:hover { background: #0ea5e9; }
+    
