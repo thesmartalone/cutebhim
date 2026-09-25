@@ -688,6 +688,23 @@ async function savePostToFirestore(info) {
         .trim() ||
       "#smartalone";
 
+    // Photo-wise SEO fields. If left empty, safe values are generated from the title.
+    const seoTitle =
+      document.getElementById("seoTitle").value.trim() ||
+      title;
+
+    const seoAlt =
+      document.getElementById("seoAlt").value.trim() ||
+      `${title} - Bhim Majhi`;
+
+    const seoKeywords =
+      document.getElementById("seoKeywords").value.trim() ||
+      [title, tag.replace(/^#/, ""), "Bhim Majhi", "photo"].filter(Boolean).join(", ");
+
+    const seoDescription =
+      document.getElementById("seoDescription").value.trim() ||
+      `${title} - Bhim Majhi photo`;
+
 
     const resourceType =
       info.resource_type || "image";
@@ -731,6 +748,23 @@ async function savePostToFirestore(info) {
         tag:
 
           tag,
+
+        // Photo-wise SEO metadata
+        seoTitle:
+
+          seoTitle,
+
+        seoAlt:
+
+          seoAlt,
+
+        seoKeywords:
+
+          seoKeywords,
+
+        seoDescription:
+
+          seoDescription,
 
         mediaUrl:
 
@@ -783,6 +817,11 @@ async function savePostToFirestore(info) {
     document
       .getElementById("tag")
       .value = "";
+
+    document.getElementById("seoTitle").value = "";
+    document.getElementById("seoAlt").value = "";
+    document.getElementById("seoKeywords").value = "";
+    document.getElementById("seoDescription").value = "";
 
 
     uploadBtn.disabled =
@@ -863,4 +902,5 @@ uploadBtn.addEventListener(
 
   }
 );
+
         
