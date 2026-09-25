@@ -119,6 +119,44 @@ function escapeHTML(value = "") {
   }[ch]));
 }
 
+// ── Photo-wise SEO ──
+function updatePhotoSEO(postId, post) {
+  const seoTitle = String(post.seoTitle || post.title || "Bhim Majhi Photo").trim();
+  const seoAlt = String(post.seoAlt || post.title || "Bhim Majhi photo").trim();
+  const seoDescription = String(post.seoDescription || `${seoTitle} - Bhim Majhi photo`).trim();
+  const keywords = String(post.seoKeywords || "Bhim Majhi, photo").trim();
+
+  let schema = document.getElementById("photoSeoSchema");
+  if (!schema) {
+    schema = document.createElement("script");
+    schema.id = "photoSeoSchema";
+    schema.type = "application/ld+json";
+    document.head.appendChild(schema);
+  }
+
+  let items = [];
+  try { items = JSON.parse(schema.textContent || "[]"); } catch (_) {}
+
+  const imageObject = {
+    "@context": "https://schema.org",
+    "@type": "ImageObject",
+    "@id": `${location.origin}${location.pathname}?photo=${encodeURIComponent(postId)}#image`,
+    "name": seoTitle,
+    "description": seoDescription,
+    "keywords": keywords,
+    "caption": seoTitle,
+    "contentUrl": post.mediaUrl,
+    "url": `${location.origin}${location.pathname}?photo=${encodeURIComponent(postId)}`,
+    "author": { "@type": "Person", "name": "Bhim Majhi" },
+    "inLanguage": "hi"
+  };
+
+  const index = items.findIndex(item => item["@id"] === imageObject["@id"]);
+  if (index >= 0) items[index] = imageObject;
+  else items.push(imageObject);
+  schema.textContent = JSON.stringify(items);
+}
+
 // ── Firebase se aane wale cards ──
 function createCard(postId, post) {
   const card = document.createElement("div");
@@ -126,14 +164,16 @@ function createCard(postId, post) {
 
   const title = escapeHTML(post.title || "New Frame");
   const tag   = escapeHTML(post.tag   || "#smartalone");
+  const seoTitle = escapeHTML(post.seoTitle || post.title || "Bhim Majhi Photo");
+  const seoAlt = escapeHTML(post.seoAlt || post.title || "Bhim Majhi photo");
   const type  = post.mediaType === "video" ? "Video" : "Photo";
   const date  = post.createdAt?.toDate
     ? post.createdAt.toDate().toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" })
     : "2026";
 
   const media = post.mediaType === "video"
-    ? `<video src="${post.mediaUrl}" controls playsinline preload="metadata"></video>`
-    : `<img src="${post.mediaUrl}" alt="${title}" loading="lazy">`;
+    ? `<video src="${post.mediaUrl}" controls playsinline preload="metadata" title="${seoTitle}"></video>`
+    : `<img src="${post.mediaUrl}" alt="${seoAlt}" title="${seoTitle}" loading="lazy">`;
 
   card.innerHTML = `
     ${media}
@@ -147,6 +187,9 @@ function createCard(postId, post) {
       <span class="like-count">0</span>
     </button>
   `;
+
+  // Photo-wise SEO schema for search engines. Visual design is untouched.
+  updatePhotoSEO(postId, post);
 
   // Like button setup
   const likeBtn = card.querySelector(".card-like");
